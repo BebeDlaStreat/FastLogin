@@ -28,6 +28,7 @@ package com.github.games647.fastlogin.bukkit;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.github.games647.fastlogin.bukkit.command.CrackedCommand;
 import com.github.games647.fastlogin.bukkit.command.PremiumCommand;
+import com.github.games647.fastlogin.bukkit.listener.AuthListener;
 import com.github.games647.fastlogin.bukkit.listener.ConnectionListener;
 import com.github.games647.fastlogin.bukkit.listener.PaperCacheListener;
 import com.github.games647.fastlogin.bukkit.listener.protocollib.ProtocolLibListener;
@@ -46,9 +47,7 @@ import io.papermc.lib.PaperLib;
 
 import java.net.InetSocketAddress;
 import java.nio.file.Path;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -78,6 +77,7 @@ public class FastLoginBukkit extends JavaPlugin implements PlatformPlugin<Comman
     private FastLoginCore<Player, CommandSender, FastLoginBukkit> core;
     private FloodgateService floodgateService;
     private GeyserService geyserService;
+    private final List<UUID> authenticatedPlayers = new ArrayList<>();
 
     private PremiumPlaceholder premiumPlaceholder;
 
@@ -134,6 +134,7 @@ public class FastLoginBukkit extends JavaPlugin implements PlatformPlugin<Comman
         getServer().getScheduler().runTaskLater(this, new DelayedAuthHook(this), 5L);
 
         pluginManager.registerEvents(new ConnectionListener(this), this);
+        pluginManager.registerEvents(new AuthListener(this), this);
 
         //if server is using paper - we need to add one more listener to correct the user cache usage
         if (PaperLib.isPaper()) {
@@ -304,5 +305,9 @@ public class FastLoginBukkit extends JavaPlugin implements PlatformPlugin<Comman
             return floodgateService;
         }
         return geyserService;
+    }
+
+    public List<UUID> getAuthenticatedPlayers() {
+        return authenticatedPlayers;
     }
 }

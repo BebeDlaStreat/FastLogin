@@ -109,6 +109,7 @@ public class SQLiteStorage extends SQLStorage {
              Statement createStmt = con.createStatement()) {
             // SQLite has a different syntax for auto increment
             createStmt.executeUpdate(CREATE_TABLE_STMT.replace("AUTO_INCREMENT", "AUTOINCREMENT"));
+            createStmt.executeUpdate(CREATE_TABLE_PW.replace("AUTO_INCREMENT", "AUTOINCREMENT"));
         }
     }
 

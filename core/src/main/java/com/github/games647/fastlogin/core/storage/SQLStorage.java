@@ -65,6 +65,21 @@ public abstract class SQLStorage implements AuthStorage {
     protected static final String UPDATE_PROFILE = "UPDATE `" + PREMIUM_TABLE
             + "` SET `UUID`=?, `Name`=?, `Premium`=?, `LastIp`=?, `LastLogin`=CURRENT_TIMESTAMP WHERE `UserID`=?";
 
+    protected static final String PASSWORDS_TABLE = "passwords";
+    protected static final String CREATE_TABLE_PW = "CREATE TABLE IF NOT EXISTS `" + PASSWORDS_TABLE + "` ("
+            + "`UUID` CHAR(40) PRIMARY KEY, "
+            + "`Name` VARCHAR(16) NOT NULL, "
+            + "`Password` VARCHAR(1024) NOT NULL "
+            + ')';
+
+    protected static final String LOAD_PW_BY_UUID = "SELECT * FROM `" + PASSWORDS_TABLE + "` WHERE `UUID`=? LIMIT 1";
+    protected static final String LOAD_PW_BY_NAME = "SELECT * FROM `" + PASSWORDS_TABLE + "` WHERE `Name`=? LIMIT 1";
+    protected static final String INSERT_PASSWORD = "INSERT INTO `" + PASSWORDS_TABLE
+            + "` (`UUID`, `Name`, `Password`) " + "VALUES (?, ?, ?) ";
+    // limit not necessary here, because it's unique
+    protected static final String UPDATE_PASSWORD = "UPDATE `" + PASSWORDS_TABLE
+            + "` SET `Password`=?, `Name`=? WHERE `UUID`=?";
+
     protected final FastLoginCore<?, ?, ?> core;
     protected final HikariDataSource dataSource;
 
@@ -89,6 +104,7 @@ public abstract class SQLStorage implements AuthStorage {
         try (Connection con = dataSource.getConnection();
              Statement createStmt = con.createStatement()) {
             createStmt.executeUpdate(CREATE_TABLE_STMT);
+            createStmt.executeUpdate(CREATE_TABLE_PW);
         }
     }
 
@@ -185,5 +201,76 @@ public abstract class SQLStorage implements AuthStorage {
     @Override
     public void close() {
         dataSource.close();
+    }
+
+    @Override
+    public boolean isRegister(UUID uuid) {
+        try (Connection con = dataSource.getConnection();
+             PreparedStatement loadStmt = con.prepareStatement(LOAD_PW_BY_UUID)) {
+            loadStmt.setString(1, uuid.toString());
+
+            try (ResultSet resultSet = loadStmt.executeQuery()) {
+                return resultSet.next();
+            }
+        } catch (SQLException sqlEx) {
+            core.getPlugin().getLog().error("Failed to query password: {}", uuid, sqlEx);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isRegister(String name) {
+        try (Connection con = dataSource.getConnection();
+             PreparedStatement loadStmt = con.prepareStatement(LOAD_PW_BY_NAME)) {
+            loadStmt.setString(1, name);
+
+            try (ResultSet resultSet = loadStmt.executeQuery()) {
+                return resultSet.next();
+            }
+        } catch (SQLException sqlEx) {
+            core.getPlugin().getLog().error("Failed to query password: {}", name, sqlEx);
+        }
+        return false;
+    }
+
+    @Override
+    public void savePassword(UUID uuid, String name, String password) {
+        try (Connection con = dataSource.getConnection()) {
+            if (isRegister(uuid)) {
+                try (PreparedStatement saveStmt = con.prepareStatement(UPDATE_PASSWORD)) {
+                    saveStmt.setString(1, password);
+                    saveStmt.setString(2, name);
+                    saveStmt.setString(3, uuid.toString());
+                    saveStmt.execute();
+                }
+            } else {
+                try (PreparedStatement saveStmt = con.prepareStatement(INSERT_PASSWORD)) {
+                    saveStmt.setString(1, uuid.toString());
+                    saveStmt.setString(2, name);
+                    saveStmt.setString(3, password);
+
+                    saveStmt.execute();
+                }
+            }
+        } catch (SQLException ex) {
+            core.getPlugin().getLog().error("Failed to save password {}", uuid, ex);
+        }
+    }
+
+    @Override
+    public String getPassword(UUID uuid) {
+        try (Connection con = dataSource.getConnection();
+             PreparedStatement loadStmt = con.prepareStatement(LOAD_PW_BY_UUID)) {
+            loadStmt.setString(1, uuid.toString());
+
+            try (ResultSet resultSet = loadStmt.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getString("Password");
+                }
+            }
+        } catch (SQLException sqlEx) {
+            core.getPlugin().getLog().error("Failed to query password: {}", uuid, sqlEx);
+        }
+        return null;
     }
 }

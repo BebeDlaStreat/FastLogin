@@ -41,6 +41,7 @@ public class StoredProfile extends Profile {
     private boolean premium;
     private String lastIp;
     private Instant lastLogin;
+    private String password;
 
     public StoredProfile(long rowId, UUID uuid, String playerName, boolean premium, String lastIp, Instant lastLogin) {
         super(uuid, playerName);

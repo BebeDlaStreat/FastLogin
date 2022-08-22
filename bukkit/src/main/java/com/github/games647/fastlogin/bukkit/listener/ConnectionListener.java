@@ -115,6 +115,7 @@ public class ConnectionListener implements Listener {
         plugin.getCore().getPendingConfirms().remove(player.getUniqueId());
         plugin.getPremiumPlayers().remove(player.getUniqueId());
         plugin.getBungeeManager().cleanup(player);
+        plugin.getAuthenticatedPlayers().remove(player.getUniqueId());
     }
 
     private void removeBlockedStatus(Metadatable player) {

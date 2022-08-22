@@ -25,10 +25,14 @@
  */
 package com.github.games647.fastlogin.bungee;
 
+import com.github.games647.fastlogin.bungee.commands.LoginCommand;
+import com.github.games647.fastlogin.bungee.commands.RegisterCommand;
 import com.github.games647.fastlogin.bungee.hook.BungeeAuthHook;
 import com.github.games647.fastlogin.bungee.hook.BungeeCordAuthenticatorBungeeHook;
+import com.github.games647.fastlogin.bungee.hook.FastLoginHook;
 import com.github.games647.fastlogin.bungee.listener.ConnectListener;
 import com.github.games647.fastlogin.bungee.listener.PluginMessageListener;
+import com.github.games647.fastlogin.bungee.task.JoinLoginTask;
 import com.github.games647.fastlogin.core.AsyncScheduler;
 import com.github.games647.fastlogin.core.CommonUtil;
 import com.github.games647.fastlogin.core.hooks.AuthPlugin;
@@ -47,10 +51,13 @@ import com.google.common.io.ByteStreams;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -78,6 +85,7 @@ public class FastLoginBungee extends Plugin implements PlatformPlugin<CommandSen
     private FloodgateService floodgateService;
     private GeyserService geyserService;
     private Logger logger;
+    private final List<UUID> authenticatedPlayers = new ArrayList<>();
 
     @Override
     public void onEnable() {
@@ -105,9 +113,14 @@ public class FastLoginBungee extends Plugin implements PlatformPlugin<CommandSen
         pluginManager.registerListener(this, connectListener);
         pluginManager.registerListener(this, new PluginMessageListener(this));
 
+        pluginManager.registerCommand(this, new RegisterCommand(this, core));
+        pluginManager.registerCommand(this, new LoginCommand(this, core));
+
         //this is required to listen to incoming messages from the server
         getProxy().registerChannel(NamespaceKey.getCombined(getName(), ChangePremiumMessage.CHANGE_CHANNEL));
         getProxy().registerChannel(NamespaceKey.getCombined(getName(), SuccessMessage.SUCCESS_CHANNEL));
+
+        getProxy().getScheduler().schedule(this, new JoinLoginTask(this), 1, 1, TimeUnit.SECONDS);
 
         registerHook();
     }
@@ -130,7 +143,7 @@ public class FastLoginBungee extends Plugin implements PlatformPlugin<CommandSen
     private void registerHook() {
         try {
             List<Class<? extends AuthPlugin<ProxiedPlayer>>> hooks = Arrays.asList(
-                    BungeeAuthHook.class, BungeeCordAuthenticatorBungeeHook.class);
+                    FastLoginHook.class, BungeeAuthHook.class, BungeeCordAuthenticatorBungeeHook.class);
 
             for (Class<? extends AuthPlugin<ProxiedPlayer>> clazz : hooks) {
                 String pluginName = clazz.getSimpleName();
@@ -214,5 +227,9 @@ public class FastLoginBungee extends Plugin implements PlatformPlugin<CommandSen
             return floodgateService;
         }
         return geyserService;
+    }
+
+    public List<UUID> getAuthenticatedPlayers() {
+        return authenticatedPlayers;
     }
 }

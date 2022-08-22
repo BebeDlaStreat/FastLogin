@@ -25,7 +25,9 @@
  */
 package com.github.games647.fastlogin.bukkit;
 
+import com.github.games647.fastlogin.bukkit.listener.BungeeAuthListener;
 import com.github.games647.fastlogin.bukkit.listener.BungeeListener;
+import com.github.games647.fastlogin.core.message.AuthenticateMessage;
 import com.github.games647.fastlogin.core.message.ChannelMessage;
 import com.github.games647.fastlogin.core.message.LoginActionMessage;
 import com.github.games647.fastlogin.core.message.NamespaceKey;
@@ -159,6 +161,9 @@ public class BungeeManager {
         String groupId = plugin.getName();
         String forceChannel = NamespaceKey.getCombined(groupId, LoginActionMessage.FORCE_CHANNEL);
         server.getMessenger().registerIncomingPluginChannel(plugin, forceChannel, new BungeeListener(plugin));
+
+        String authChannel = NamespaceKey.getCombined(groupId, AuthenticateMessage.AUTH_CHANNEL);
+        server.getMessenger().registerIncomingPluginChannel(plugin, authChannel, new BungeeAuthListener(plugin));
 
         // outgoing
         String successChannel = new NamespaceKey(groupId, SUCCESS_CHANNEL).getCombinedName();

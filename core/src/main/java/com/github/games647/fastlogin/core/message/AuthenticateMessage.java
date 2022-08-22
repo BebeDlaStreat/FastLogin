@@ -23,26 +23,48 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.github.games647.fastlogin.core.storage;
+package com.github.games647.fastlogin.core.message;
 
-import com.github.games647.fastlogin.core.StoredProfile;
+import com.google.common.io.ByteArrayDataInput;
+import com.google.common.io.ByteArrayDataOutput;
 
 import java.util.UUID;
 
-public interface AuthStorage {
-    StoredProfile loadProfile(String name);
+public class AuthenticateMessage implements ChannelMessage {
 
-    StoredProfile loadProfile(UUID uuid);
+    public static final String AUTH_CHANNEL = "auth";
 
-    void save(StoredProfile playerProfile);
+    private UUID playerUUID;
 
-    void close();
+    public AuthenticateMessage(UUID playerUUID) {
+        this.playerUUID = playerUUID;
+    }
 
-    boolean isRegister(UUID uuid);
+    public AuthenticateMessage() {
+        //reading from
+    }
 
-    boolean isRegister(String name);
+    public UUID getPlayerUUID() {
+        return playerUUID;
+    }
 
-    void savePassword(UUID uuid, String name, String password);
+    @Override
+    public String getChannelName() {
+        return AUTH_CHANNEL;
+    }
 
-    String getPassword(UUID uuid);
+    @Override
+    public void readFrom(ByteArrayDataInput input) {
+        playerUUID = UUID.fromString(input.readUTF());
+    }
+
+    @Override
+    public void writeTo(ByteArrayDataOutput output) {
+        output.writeUTF(playerUUID.toString());
+    }
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName() + "{playerUUID='" + playerUUID + "'}";
+    }
 }

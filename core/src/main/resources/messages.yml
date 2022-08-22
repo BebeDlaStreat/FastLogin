@@ -66,7 +66,7 @@ no-permission: '&4Not enough permissions'
 
 # Although the console can toggle the premium state, it's not possible for the console itself.
 # Because the console is not a user. (obviously, isn't it?)
-no-console: '&4You are not a player. You cannot toggle the premium state for YOURSELF as a console'
+no-console: '&4You are not a player. You cannot do this as a console'
 
 # The user wants to toggle premium state, but BungeeCord support is enabled. This means the server have to communicate
 # with the BungeeCord first which will establish a connection with the database server.
@@ -101,4 +101,40 @@ invalid-public-key: '&cInvalid client public key. Please try to restart your gam
 
 # ========= Bungee/Waterfall only ================================
 
+register-usage: '&c/register (Password) (Password)'
+login-usage: '&c/login (Password)'
 
+already-login: '&cYou are already login'
+already-register: '&cYou are already registered, to login do /login (Password)'
+not-register: "&cYou should register first with /register (Password) (Password)"
+not-same-password: '&cYou must retype the same password'
+wrong-password: '&cWrong password'
+time-up: '&cYou must take less time to login/register'
+password-created: |
+  &7&m-----------------------------------------------------
+  &r 
+  &aYour account was successfully created.
+  &aHave fun on the server !
+  &r 
+  &7&mm-----------------------------------------------------
+login-success: |
+  &7&m-----------------------------------------------------
+  &r 
+  &aConnection successful.
+  &aHave fun on the server !
+  &r 
+  &7&m-----------------------------------------------------
+register: |
+  &7&m-----------------------------------------------------
+  &r 
+  &aWelcome on the server, please register first
+  &a/register (Password) (Password)
+  &r 
+  &7&m-----------------------------------------------------
+login: |
+  &7&m-----------------------------------------------------
+  &r 
+  &aWelcome back on the server, please login first
+  &a/login (Password)
+  &r 
+  &7&m-----------------------------------------------------

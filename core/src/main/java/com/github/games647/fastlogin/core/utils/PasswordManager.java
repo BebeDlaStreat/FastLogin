@@ -23,26 +23,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.github.games647.fastlogin.core.storage;
+package com.github.games647.fastlogin.core.utils;
 
-import com.github.games647.fastlogin.core.StoredProfile;
+import com.password4j.Password;
 
-import java.util.UUID;
+public class PasswordManager {
 
-public interface AuthStorage {
-    StoredProfile loadProfile(String name);
+    public PasswordManager() {
 
-    StoredProfile loadProfile(UUID uuid);
+    }
 
-    void save(StoredProfile playerProfile);
+    public String hash(String password) {
+        return Password.hash(password).withBcrypt().getResult();
+    }
 
-    void close();
-
-    boolean isRegister(UUID uuid);
-
-    boolean isRegister(String name);
-
-    void savePassword(UUID uuid, String name, String password);
-
-    String getPassword(UUID uuid);
+    public boolean isPassword(String password, String hashed) {
+        return Password.check(password, hashed).withBcrypt();
+    }
 }

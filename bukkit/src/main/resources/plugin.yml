@@ -6,8 +6,7 @@ main: ${project.groupId}.${project.artifactId}.${project.name}
 
 # meta data for plugin managers
 authors: [games647, 'https://github.com/games647/FastLogin/graphs/contributors']
-description: |
-    ${project.description}
+description: ${project.description}
 website: ${project.url}
 dev-url: ${project.url}
 

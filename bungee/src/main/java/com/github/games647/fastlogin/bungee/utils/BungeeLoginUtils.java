@@ -23,26 +23,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.github.games647.fastlogin.core.storage;
+package com.github.games647.fastlogin.bungee.utils;
 
-import com.github.games647.fastlogin.core.StoredProfile;
+import com.github.games647.fastlogin.bungee.FastLoginBungee;
+import com.github.games647.fastlogin.bungee.task.JoinLoginTask;
+import com.github.games647.fastlogin.core.message.AuthenticateMessage;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 
-import java.util.UUID;
+public class BungeeLoginUtils {
+    private ProxiedPlayer player;
+    private FastLoginBungee plugin;
 
-public interface AuthStorage {
-    StoredProfile loadProfile(String name);
+    public BungeeLoginUtils(ProxiedPlayer player, FastLoginBungee plugin) {
+        this.player = player;
+        this.plugin = plugin;
+    }
 
-    StoredProfile loadProfile(UUID uuid);
-
-    void save(StoredProfile playerProfile);
-
-    void close();
-
-    boolean isRegister(UUID uuid);
-
-    boolean isRegister(String name);
-
-    void savePassword(UUID uuid, String name, String password);
-
-    String getPassword(UUID uuid);
+    public void onLogin() {
+        plugin.getAuthenticatedPlayers().add(player.getUniqueId());
+        JoinLoginTask.getLoginInfos().remove(player.getUniqueId());
+        AuthenticateMessage message = new AuthenticateMessage(player.getUniqueId());
+        plugin.sendPluginMessage(player.getServer(), message);
+    }
 }

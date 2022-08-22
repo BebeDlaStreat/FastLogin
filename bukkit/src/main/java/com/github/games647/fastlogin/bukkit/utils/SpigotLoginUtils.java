@@ -23,26 +23,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.github.games647.fastlogin.core.storage;
+package com.github.games647.fastlogin.bukkit.utils;
 
-import com.github.games647.fastlogin.core.StoredProfile;
+import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
-import java.util.UUID;
+public class SpigotLoginUtils {
+    private Player player;
 
-public interface AuthStorage {
-    StoredProfile loadProfile(String name);
+    public SpigotLoginUtils(Player player) {
+        this.player = player;
+    }
 
-    StoredProfile loadProfile(UUID uuid);
+    public void onJoin() {
+        player.addPotionEffect(new PotionEffect(
+                PotionEffectType.BLINDNESS, Integer.MAX_VALUE, 255, false, false
+        ));
+    }
 
-    void save(StoredProfile playerProfile);
-
-    void close();
-
-    boolean isRegister(UUID uuid);
-
-    boolean isRegister(String name);
-
-    void savePassword(UUID uuid, String name, String password);
-
-    String getPassword(UUID uuid);
+    public void onLogin() {
+        player.removePotionEffect(PotionEffectType.BLINDNESS);
+    }
 }

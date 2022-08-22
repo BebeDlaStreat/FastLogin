@@ -26,12 +26,7 @@
 package com.github.games647.fastlogin.bukkit.task;
 
 import com.github.games647.fastlogin.bukkit.FastLoginBukkit;
-import com.github.games647.fastlogin.bukkit.hook.AuthMeHook;
-import com.github.games647.fastlogin.bukkit.hook.CrazyLoginHook;
-import com.github.games647.fastlogin.bukkit.hook.LogItHook;
-import com.github.games647.fastlogin.bukkit.hook.LoginSecurityHook;
-import com.github.games647.fastlogin.bukkit.hook.UltraAuthHook;
-import com.github.games647.fastlogin.bukkit.hook.XAuthHook;
+import com.github.games647.fastlogin.bukkit.hook.*;
 import com.github.games647.fastlogin.core.hooks.AuthPlugin;
 
 import java.lang.reflect.Constructor;
@@ -94,8 +89,8 @@ public class DelayedAuthHook implements Runnable {
     private AuthPlugin<Player> getAuthHook() {
         try {
             List<Class<? extends AuthPlugin<Player>>> hooks = Arrays.asList(AuthMeHook.class,
-                    CrazyLoginHook.class, LogItHook.class, LoginSecurityHook.class, UltraAuthHook.class,
-                    XAuthHook.class);
+                    FastLoginHook.class, CrazyLoginHook.class, LogItHook.class, LoginSecurityHook.class,
+                    UltraAuthHook.class, XAuthHook.class);
 
             for (Class<? extends AuthPlugin<Player>> clazz : hooks) {
                 String pluginName = clazz.getSimpleName();

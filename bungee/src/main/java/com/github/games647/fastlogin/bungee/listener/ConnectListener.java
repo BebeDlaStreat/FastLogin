@@ -31,10 +31,12 @@ import com.github.games647.fastlogin.bungee.FastLoginBungee;
 import com.github.games647.fastlogin.bungee.task.AsyncPremiumCheck;
 import com.github.games647.fastlogin.bungee.task.FloodgateAuthTask;
 import com.github.games647.fastlogin.bungee.task.ForceLoginTask;
+import com.github.games647.fastlogin.bungee.task.JoinLoginTask;
 import com.github.games647.fastlogin.core.StoredProfile;
 import com.github.games647.fastlogin.core.antibot.AntiBotService;
 import com.github.games647.fastlogin.core.antibot.AntiBotService.Action;
 import com.github.games647.fastlogin.core.hooks.bedrock.FloodgateService;
+import com.github.games647.fastlogin.core.message.AuthenticateMessage;
 import com.github.games647.fastlogin.core.shared.LoginSession;
 import com.google.common.base.Throwables;
 
@@ -49,10 +51,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
-import net.md_5.bungee.api.event.LoginEvent;
-import net.md_5.bungee.api.event.PlayerDisconnectEvent;
-import net.md_5.bungee.api.event.PreLoginEvent;
-import net.md_5.bungee.api.event.ServerConnectedEvent;
+import net.md_5.bungee.api.event.*;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.connection.LoginResult;
@@ -171,6 +170,14 @@ public class ConnectListener implements Listener {
         }
     }
 
+    @EventHandler
+    public void onJoin(PostLoginEvent e) {
+        ProxiedPlayer player = e.getPlayer();
+        JoinLoginTask.getLoginInfos().put(player.getUniqueId(),
+                new JoinLoginTask.LoginInfos(System.currentTimeMillis(), false)
+        );
+    }
+
     protected void setOfflineId(InitialHandler connection, String username) {
         try {
             UUID oldPremiumId = connection.getUniqueId();
@@ -223,5 +230,15 @@ public class ConnectListener implements Listener {
         ProxiedPlayer player = disconnectEvent.getPlayer();
         plugin.getSession().remove(player.getPendingConnection());
         plugin.getCore().getPendingConfirms().remove(player.getUniqueId());
+        plugin.getAuthenticatedPlayers().remove(player.getUniqueId());
+    }
+
+    @EventHandler
+    public void onSwitch(ServerSwitchEvent e) {
+        ProxiedPlayer player = e.getPlayer();
+        if (plugin.getAuthenticatedPlayers().contains(player.getUniqueId())) {
+            AuthenticateMessage message = new AuthenticateMessage(player.getUniqueId());
+            plugin.sendPluginMessage(player.getServer(), message);
+        }
     }
 }
