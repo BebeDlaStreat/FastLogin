@@ -60,6 +60,7 @@ public class LoginCommand extends Command {
         }
         if (args.length < 1) {
             player.sendMessage(core.getMessage("login-usage"));
+            return;
         }
         String password = args[0];
         String hashedPassword = core.getStorage().getPassword(player.getUniqueId());

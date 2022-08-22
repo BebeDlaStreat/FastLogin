@@ -30,6 +30,7 @@ import com.github.games647.fastlogin.bungee.commands.RegisterCommand;
 import com.github.games647.fastlogin.bungee.hook.BungeeAuthHook;
 import com.github.games647.fastlogin.bungee.hook.BungeeCordAuthenticatorBungeeHook;
 import com.github.games647.fastlogin.bungee.hook.FastLoginHook;
+import com.github.games647.fastlogin.bungee.listener.ChatListener;
 import com.github.games647.fastlogin.bungee.listener.ConnectListener;
 import com.github.games647.fastlogin.bungee.listener.PluginMessageListener;
 import com.github.games647.fastlogin.bungee.task.JoinLoginTask;
@@ -112,6 +113,7 @@ public class FastLoginBungee extends Plugin implements PlatformPlugin<CommandSen
         Listener connectListener = new ConnectListener(this, core.getAntiBot());
         pluginManager.registerListener(this, connectListener);
         pluginManager.registerListener(this, new PluginMessageListener(this));
+        pluginManager.registerListener(this, new ChatListener(this));
 
         pluginManager.registerCommand(this, new RegisterCommand(this, core));
         pluginManager.registerCommand(this, new LoginCommand(this, core));
